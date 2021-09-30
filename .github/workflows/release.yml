@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: cleaner
+            asset_name: cleaner${{ github.event.release.tag_name }}-linux-amd64
+          - os: windows-latest
+            artifact_name: cleaner.exe
+            asset_name: cleaner${{ github.event.release.tag_name }}-windows-amd64.exe
+          - os: macos-latest
+            artifact_name: cleaner
+            asset_name: cleaner${{ github.event.release.tag_name }}-darwin-amd64
+
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.16
+      id: go
+
+    - uses: actions/checkout@v2
+
+    - name: Build For *nix
+      run: |
+        CGO_ENABLED=0 go build -v ./cmd/cleaner
+      if: matrix.os != 'windows-latest'
+
+    - name: Build For Windows
+      run: |
+        go build -v ./cmd/cleaner
+      if: matrix.os == 'windows-latest'
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}

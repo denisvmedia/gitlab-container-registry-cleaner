@@ -1,4 +1,4 @@
-module git.jobtome.io/auxiliary/docker-registry-cleaner
+module github.com/denisvmedia/gitlab-container-registry-cleaner
 
 go 1.16
 

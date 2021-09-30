@@ -1,7 +1,7 @@
 package main
 
 import (
-	"git.jobtome.io/auxiliary/docker-registry-cleaner/pkg/cmd"
+	"github.com/denisvmedia/gitlab-container-registry-cleaner/pkg/cmd"
 	"github.com/jessevdk/go-flags"
 	"os"
 )
