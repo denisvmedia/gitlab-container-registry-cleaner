@@ -4,9 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/jessevdk/go-flags"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/jessevdk/go-flags"
+)
+
+const (
+	repositoriesListLinkTemplate = "%s/projects/%s/registry/repositories?page=%d&per_page=100"
+	repositoryLinkTemplate       = "%s/projects/%s/registry/repositories/%d"
 )
 
 type CleanCommand struct {
@@ -36,7 +42,7 @@ func (cmd *CleanCommand) Execute(_ []string) error {
 
 	i := 1
 	for ; ; i++ {
-		u := fmt.Sprintf("%s/projects/%s/registry/repositories?page=%d&per_page=100", cmd.ApiV4URL, cmd.ProjectID, i)
+		u := fmt.Sprintf(repositoriesListLinkTemplate, cmd.ApiV4URL, cmd.ProjectID, i)
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
 			return err
@@ -55,10 +61,12 @@ func (cmd *CleanCommand) Execute(_ []string) error {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != 200 {
-				return nil, errors.New("status code is not 200")
+				if cmd.TokenType == "job" {
+					return nil, errors.New("Status code is not 200. Did you enable :ci_job_token_scope Gitlab feature?")
+				}
+				return nil, errors.New("Status code is not 200.")
 			}
 
-			// fmt.Println(resp.Header.Values("Link"))
 			data, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
 				return nil, err
@@ -69,8 +77,6 @@ func (cmd *CleanCommand) Execute(_ []string) error {
 		if err != nil {
 			return err
 		}
-
-		// fmt.Println("Existing repositories: " + string(data))
 
 		var repos []RepositoryData
 		err = json.Unmarshal(data, &repos)
@@ -83,15 +89,17 @@ func (cmd *CleanCommand) Execute(_ []string) error {
 		}
 
 		for _, repo := range repos {
-			if repo.Name == cmd.RepositoryName {
-				d, err := json.Marshal(repo)
-				if err != nil {
-					return err
-				}
-				fmt.Println(string(d))
-				found = &repo
-				break
+			if repo.Name != cmd.RepositoryName {
+				continue
 			}
+
+			d, err := json.Marshal(repo)
+			if err != nil {
+				return err
+			}
+			fmt.Println(string(d))
+			found = &repo
+			break
 		}
 	}
 
@@ -99,7 +107,7 @@ func (cmd *CleanCommand) Execute(_ []string) error {
 		return errors.New("repository not found")
 	}
 
-	u := fmt.Sprintf("%s/projects/%s/registry/repositories/%d", cmd.ApiV4URL, cmd.ProjectID, found.ID)
+	u := fmt.Sprintf(repositoryLinkTemplate, cmd.ApiV4URL, cmd.ProjectID, found.ID)
 	req, err := http.NewRequest("DELETE", u, nil)
 	if err != nil {
 		return err

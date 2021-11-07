@@ -1,16 +1,17 @@
 package main
 
 import (
+	"os"
+
 	"github.com/denisvmedia/gitlab-container-registry-cleaner/pkg/cmd"
 	"github.com/jessevdk/go-flags"
-	"os"
 )
 
-var GitVersion string
+var Version string
 
 func main() {
-	if GitVersion == "" {
-		GitVersion = "develop"
+	if Version == "" {
+		Version = "develop"
 	}
 
 	app := &cmd.AppCommand{}

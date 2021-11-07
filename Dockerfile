@@ -1,3 +1,5 @@
+ARG VERSION=develop
+
 #
 # App builder
 #
@@ -7,7 +9,7 @@ WORKDIR /build
 
 ADD . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cleaner ./cmd/cleaner
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=mod -ldflags "-X main.Version=$(VERSION)" -o cleaner ./cmd/cleaner
 
 
 #
