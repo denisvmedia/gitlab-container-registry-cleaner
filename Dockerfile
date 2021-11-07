@@ -1,10 +1,10 @@
-ARG APP_VERSION=develop
-ARG GIT_COMMIT=unknown
-
 #
 # App builder
 #
 FROM golang:1.16.6-alpine AS builder
+
+ARG APP_VERSION=develop
+ARG GIT_COMMIT=unknown
 
 WORKDIR /build
 
