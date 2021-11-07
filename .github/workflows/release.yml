@@ -34,7 +34,7 @@ jobs:
 
     - name: Build For *nix
       run: |
-        CGO_ENABLED=0 go build -v -mod=mod -ldflags "-X main.AppVersion=${GITHUB_REF} -X main.GitCommit=${GITHUB_SHA}" ./cmd/cleaner
+        CGO_ENABLED=0 go build -v -mod=mod -ldflags "-X main.AppVersion=${{ github.event.release.tag_name }} -X main.GitCommit=${{ github.sha }}" ./cmd/cleaner
       if: matrix.os != 'windows-latest'
 
     - name: Build For Windows
