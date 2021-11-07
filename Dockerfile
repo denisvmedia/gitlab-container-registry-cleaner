@@ -1,3 +1,6 @@
+ARG APP_VERSION=develop
+ARG GIT_COMMIT=unknown
+
 #
 # App builder
 #
@@ -7,7 +10,7 @@ WORKDIR /build
 
 ADD . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cleaner ./cmd/cleaner
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=mod -ldflags "-X main.AppVersion=${APP_VERSION} -X main.GitCommit=${GIT_COMMIT}" -o cleaner ./cmd/cleaner
 
 
 #

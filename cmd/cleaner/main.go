@@ -1,21 +1,29 @@
 package main
 
 import (
+	"os"
+
 	"github.com/denisvmedia/gitlab-container-registry-cleaner/pkg/cmd"
 	"github.com/jessevdk/go-flags"
-	"os"
 )
 
-var GitVersion string
+var (
+	AppVersion string
+	GitCommit  string
+)
 
 func main() {
-	if GitVersion == "" {
-		GitVersion = "develop"
+	if AppVersion == "" {
+		AppVersion = "develop"
+	}
+	if GitCommit == "" {
+		GitCommit = "unknown"
 	}
 
 	app := &cmd.AppCommand{}
 	parser := flags.NewParser(app, flags.Default)
 	cmd.RegisterCleanCommand(parser)
+	cmd.RegisterVersionCommand(parser, AppVersion, GitCommit)
 
 	_, err := parser.ParseArgs(os.Args[1:])
 	if err != nil {
