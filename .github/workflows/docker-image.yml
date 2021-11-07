@@ -54,7 +54,8 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
           build-args: |
-            VERSION=${{ github.event.release.tag_name }}
+            APP_VERSION=${{ github.event.release.tag_name }}
+            GIT_COMMIT=${{ github.sha }}
 
       - name: Verify
         run: echo "-> Done ${{ steps.docker_build.outputs.digest }}" 

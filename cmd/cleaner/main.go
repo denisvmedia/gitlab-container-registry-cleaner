@@ -7,16 +7,23 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-var Version string
+var (
+	AppVersion string
+	GitCommit  string
+)
 
 func main() {
-	if Version == "" {
-		Version = "develop"
+	if AppVersion == "" {
+		AppVersion = "develop"
+	}
+	if GitCommit == "" {
+		GitCommit = "unknown"
 	}
 
 	app := &cmd.AppCommand{}
 	parser := flags.NewParser(app, flags.Default)
 	cmd.RegisterCleanCommand(parser)
+	cmd.RegisterVersionCommand(parser, AppVersion, GitCommit)
 
 	_, err := parser.ParseArgs(os.Args[1:])
 	if err != nil {
